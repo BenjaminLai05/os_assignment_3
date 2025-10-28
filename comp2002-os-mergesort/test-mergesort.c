@@ -4,7 +4,7 @@
 #include <sys/times.h> /* for times system call */
 #include <sys/time.h>  /* for gettimeofday system call */
 #include <unistd.h>
-#include <error.h>     /* On MacOS you won't need this line */
+// #include <error.h>     /* On MacOS you won't need this line */
 #include "mergesort.h"
 
 /* the number of levels of threads, specified by the user */
@@ -150,6 +150,14 @@ int main(int argc, char **argv) {
 
 	double start_time;
 	double sorting_time;
+	//int i;
+
+	// Before state
+	// printf("BEFORE: ");
+	// for(i = 0; i < n; i++) {
+	// 	printf("%d ", A[i]);
+	// }
+	// printf("\n\n");
 
 	// sort the input (and time it)
 	start_time = getMilliSeconds();
@@ -157,6 +165,13 @@ int main(int argc, char **argv) {
 	struct argument *arg=buildArgs(0, n-1, 0);
 	parallel_mergesort(arg);
 	sorting_time = getMilliSeconds() - start_time;
+
+	// After state
+	// printf("\nAFTER: ");
+	// for(i = 0; i < n; i++) {
+	// 	printf("%d ", A[i]);
+	// }
+	// printf("\n\n");
 
 	// print the array, for debugging purpose.
 	//printA();

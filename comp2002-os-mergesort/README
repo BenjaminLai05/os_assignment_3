@@ -1,0 +1,95 @@
+TO RUN THE CODE:
+For group testing: 
+
+chmod +x test.sh
+./test.sh
+
+For individual testing: 
+gcc test-mergesort.c mergesort.c -o main
+
+
+
+
+## Project Number/Title 
+
+* Authors: Benjamin Lai, Sam Austin, Yuzhen Ma
+* Group name: Group 43
+
+## Overview
+
+This projct implements a multi-threaded version of the merge sort algorithm, known as parallel merge sort.
+The program sorts a randomly generated array by dividing it into subarrays that are concurrently processed
+by mulitple threads. Users can specify the level of thread parallelism via a cutoff parameter, which determines
+how many levels of recursion will spawn new threads.
+
+## Manifest
+
+mergesort.c - contains the implementation of the standard mergesort and parallel merge sort algorithms
+mergesort.h - header file that defines global variables and structs
+test-mergesort.c - provided testing program that compares execution times for different cutoff levels
+Makefile - builds source files and computes the test-mergesort executable
+
+## Building the project
+
+To build the project, run 'make' in the terminal to compile source files and create an executable
+To run, ./test-mergesort <input size> <cutoff level> <seed>. 
+As an example, /.test-mergesort 1000000 3 1234 will sort 1 million randomly generated integers
+using a cutoff value of 3, with 1234 as the random seed.
+
+## Features and usage
+
+Main features:
+- implementation of both merge sort and parallel merge sort
+- uses pthreads to divide sorting tasks among multiple threads
+- user control of parallel depth through pre-defined cutoff level
+
+Usage notes:
+- cutoff = 0 - single-threaded merge sort (sequential)
+- cutoff > 0 - multi-threaded merge sort, where threads are spawned recursivley until the cutoff level
+is reached
+- sorting time is displayed upon completion
+
+## Testing
+
+In terms of testing, in order to ensure the program functioned as intended, we ran multiple tests on different inputs on size, cutoff, and seed. This was written in a test.sh file, where not only was it able to output if it passed, dependent on the integer returned (0 or 1), but it could further execute the input, final output and intermediate processes of the array. For example, one test case could be:
+
+Test: Size=20, Cutoff=2, Seed=123
+
+[L0] Parallel: [0..19] -> LEFT[0..9] + RIGHT[10..19]
+[L1] Parallel: [0..9] -> LEFT[0..4] + RIGHT[5..9]
+[L1] Parallel: [10..19] -> LEFT[10..14] + RIGHT[15..19]
+[L2] Serial: [0..4] (size=5)
+[L2] Serial: [5..9] (size=5)
+[L2] Serial: [10..14] (size=5)
+[L2] Serial: [15..19] (size=5)
+[L1] Merged: [0..9]
+[L1] Merged: [10..19]
+[L0] Merged: [0..19]
+Sorting 20 elements took 0.00 seconds.
+
+PASSED
+
+## Known Bugs
+
+None currently identified
+
+## Reflection and Self Assessment
+
+Developing the paralell merge sort algorithm requried a strong understanding of thread creation, data
+sharing and synchronization. One of the most challenging aspects of this assignment was correctly managing
+thread arguments and memory, particularly ensuring that each thread recieved the correct array segment
+without any conflits. 
+
+Some of the early versions of the algorithm suffered from segmentation faults and data overwriting due
+to improper memory handling in the merge() and buildArgs() functions. To voercome this, we debugged with gdb
+and added print statements at each recusion level to isolate where the issue was.
+
+Completing this project also clarified how parallel recusion differs from standard recursion, especially
+the concept of indirect recursion through the pthread_create() function. Once the synchronization and 
+cutoff logic were implemented correctly, there were noticeable improvements in performace. 
+
+## Sources Used
+
+GeeksforGeeks merge sort algorithm - https://www.geeksforgeeks.org/dsa/merge-sort/
+Stack Overflow - passing structs to pthreads functions - https://stackoverflow.com/questions/11799287/creating-a-exported-method-library-class-in-ios/11799392#11799392
+ChatGBT for debugging segfaults and documentation
