@@ -11,41 +11,37 @@
 void merge(int leftstart, int leftend, int rightstart, int rightend) {	
 	int i, j, k;
 
-	int n1 = leftend - leftstart + 1;
-	int n2 = rightend - rightstart + 1;
+	// copy the entire range to be merged into temp array B
+	// this uses the global array B instead of stack-based VLAs
+	int size = rightend - leftstart + 1;
+	memcpy(&B[leftstart], &A[leftstart], size * sizeof(int));
 
-	int leftArr[n1], rightArr[n2];
+	i = leftstart;  // index for left subarray in B
+	j = rightstart; // index for right subarray in B
+	k = leftstart;  // index for merged array in A
 
-	for (i = 0; i < n1; i++) {
-		leftArr[i] = A[leftstart + i]; 
-	}
-	for (j = 0; j < n2; j++) {
-		rightArr[j] = A[rightstart + j];
-	}
-
-	i = 0; 
-	j = 0; 
-	k = leftstart;
-
-	while (i < n1 && j < n2) {
-		if (leftArr[i] <= rightArr[j]) {
-			A[k] = leftArr[i];
-			i++;
+	// merge the two sorted halves from B back into A
+	while (i <= leftend && j <= rightend) {
+		if (B[i] <= B[j]) {
+			A[k] = B[i];
+			i++; 
 		} else {
-			A[k] = rightArr[j];
+			A[k] = B[j];
 			j++;
 		}
 		k++;
 	}
 
-	while (i < n1) {
-		A[k] = leftArr[i];
+	// Copy any remaining elements from left half
+	while (i <= leftend) {
+		A[k] = B[i];
 		i++;
 		k++; 
 	}
-
-	while (j < n2) {
-		A[k] = rightArr[j];
+	
+	// Copy any remaining elements from right half
+	while (j <= rightend) {
+		A[k] = B[j];
 		j++;
 		k++;
 	}
@@ -53,7 +49,7 @@ void merge(int leftstart, int leftend, int rightstart, int rightend) {
 
 /* this function will be called by parallel_mergesort() as its base case. this is known as mergesort in the assignment*/
 void my_mergesort(int left, int right) {
-	if (left < right) {
+	if (left < right) { 
 	int leftend = left + (right - left) / 2; 
 	int rightstart = leftend + 1;
 		
@@ -63,7 +59,10 @@ void my_mergesort(int left, int right) {
 	}
 }
 
+// if left is smaller than right, divide the array by half (with rightstart added), then recursively call it right and left = 0.
 
+
+// Recursion Test Case: 
 // assume our array is: t1 - {3,2,7,5,4} 
 
 // {3,2,7,5,4} gets turned into:
@@ -110,24 +109,26 @@ void my_mergesort(int left, int right) {
 
 /* this function will be called by the testing program. */
 void * parallel_mergesort(void *arg) {
-	struct argument *params;
+	struct argument *params; // create a pointer which is a type of struct argument
 
-	params = (struct argument *) arg;
+	params = (struct argument *) arg;  // params is created to tell arg it is type struct arugment in this case.
 
-	int left = params -> left;
+	int left = params -> left; 
 	int right = params -> right;
 	int level = params -> level;
 
+	// get values inside of params which is a pointer to buildArgs
+
 	if (params -> level >= cutoff) {
-		printf("[L%d] Serial: [%d..%d]\n", level, left, right);
-		my_mergesort(left, right);
+		printf("[L%d] Serial: [%d..%d]\n", level, left, right); // testing
+		my_mergesort(left, right); // use my_mergesort on base case
 		return NULL;
 	} else { 
 		int leftend = left + (right - left) / 2;
 		int rightstart = leftend + 1;
 
 		printf("[L%d] Parallel: [%d..%d] -> LEFT[%d..%d] + RIGHT[%d..%d]\n", 
-		       level, left, right, left, leftend, rightstart, right);
+		       level, left, right, left, leftend, rightstart, right); 
 
 		pthread_t left_thread;
 		pthread_t right_thread;

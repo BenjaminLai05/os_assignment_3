@@ -1,10 +1,10 @@
 TO RUN THE CODE:
-For group testing: 
 
+Using test file: 
 chmod +x test.sh
 ./test.sh
 
-For individual testing: 
+Using individual testing: 
 gcc test-mergesort.c mergesort.c -o main
 
 
